@@ -1,6 +1,7 @@
 using System;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Specifications;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController(IProductRepository repo) : ControllerBase
+public class ProductsController(IGenericRepository<Product> repo) : ControllerBase
 {
     // private readonly StoreContext context = context;
 
@@ -22,7 +23,10 @@ public class ProductsController(IProductRepository repo) : ControllerBase
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts(string? brand, string? type, string? sort)
     {
         // return await context.Products.ToListAsync();
-        return Ok(await repo.GetProductsAsync(brand, type, sort));
+
+        var spec = new ProductSpecification(brand, type, sort);
+        var products = await repo.ListAsync(spec);
+        return Ok(products);
 
     }
 
@@ -30,7 +34,7 @@ public class ProductsController(IProductRepository repo) : ControllerBase
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
         // var product = await context.Products.FindAsync(id);
-        var product = await repo.GetProductByIdAsync(id);
+        var product = await repo.GetByIdAsync(id);
 
         if (product == null)
         {
@@ -43,9 +47,9 @@ public class ProductsController(IProductRepository repo) : ControllerBase
     public async Task<ActionResult<Product>> CreateProduct(Product product)
     {
         // context.Products.Add(product);
-        repo.AddProduct(product);
+        repo.Add(product);
         // await context.SaveChangesAsync();
-        if (await repo.SaveChangesAsync())        
+        if (await repo.SaveAllAsync())        
         {
             return CreatedAtAction("GetProduct", new { id = product.Id }, product);
         }
@@ -60,9 +64,9 @@ public class ProductsController(IProductRepository repo) : ControllerBase
             return BadRequest("Cannot update this product");
         }
             // context.Entry(product).State = EntityState.Modified;
-            repo.UpdateProduct(product);
+            repo.Update(product);
             // await context.SaveChangesAsync();
-            if (await repo.SaveChangesAsync())        
+            if (await repo.SaveAllAsync())        
             {
                 return NoContent();
             }
@@ -73,13 +77,13 @@ public class ProductsController(IProductRepository repo) : ControllerBase
     public async Task<ActionResult> DeleteProduct(int id)
     {
         // var product = await context.Products.FindAsync(id);
-        var product = await repo.GetProductByIdAsync(id);  // use repository method;
+        var product = await repo.GetByIdAsync(id);  // use repository method;
         if (product == null) { 
             return NotFound();
         }
         // context.Products.Remove(product);
-        repo.DeleteProduct(product);
-        if (await repo.SaveChangesAsync()) 
+        repo.Remove(product);
+        if (await repo.SaveAllAsync()) 
         {
             return NoContent();
         }        
@@ -92,20 +96,26 @@ public class ProductsController(IProductRepository repo) : ControllerBase
     [HttpGet("brands")] 
     public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
     {
-        return Ok(await repo.GetBrandsAsync());
+        // return Ok(await repo.GetBrandsAsync());
+        // Implement method
+        var spec = new BrandListSpecification(); 
+         return Ok(await repo.ListAsync(spec));
 
     }
 
     [HttpGet("types")] 
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
     {
-        return Ok(await repo.GetTypesAsync());
+        // return Ok(await repo.GetTypesAsync());
+        // Implement method
+        var spec = new TypeListSpecification(); 
+         return Ok(await repo.ListAsync(spec));
 
     }
     private bool ProductsExists(int id)
     {
         // return context.Products.Any(x => x.Id == id);
-        return repo.ProductsExists(id);  // use repository method;
+        return repo.Exists(id);  // use repository method;
     }
 }
 

@@ -48,10 +48,10 @@ public class BaseSpecification<T>(Expression<Func<T, bool>> criteria) : ISpecifi
         IsDistinct = true;
     }
 
-    protected void ApplyPaging(int take, int skip)
+    protected void ApplyPaging(int skip, int take)
     {
-        Skip = skip;
         Take = take;
+        Skip = skip;
         IsPagingEnabled = true;
     }
 }

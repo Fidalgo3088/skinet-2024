@@ -13,7 +13,8 @@ public class ProductSpecification : BaseSpecification<Product>
 
      
     {
-        ApplyPaging(specParams.PageSize * (specParams.PageIndex -1), specParams.PageSize);
+        ApplyPaging(specParams.PageSize * (specParams.PageIndex -1),
+        specParams.PageSize);
 
         switch (specParams.Sort)
         {

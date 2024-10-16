@@ -59,7 +59,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
             _ => query.OrderBy(x => x.Name)
         };        
 
-        return await query.ToListAsync();  // or use a queryable for efficient data retrieval
+        return await query.Skip(5).Take(5).ToListAsync();  // or use a queryable for efficient data retrieval
     }
 
     public async Task<IReadOnlyList<string>> GetTypesAsync()

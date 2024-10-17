@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
+[Route("api/[controller]")]
 public class ProductsController(IGenericRepository<Product> repo) : BaseApiController
 {
-
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(
         [FromQuery]ProductSpecParams specParams)
